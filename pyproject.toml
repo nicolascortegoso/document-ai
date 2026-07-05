@@ -1,0 +1,9 @@
+[project]
+name = "document-ai"
+version = "0.1.0"
+description = "A modular, production-grade platform for intelligent document ingestion, semantic search, and retrieval-augmented generation (RAG)."
+requires-python = ">=3.11"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
