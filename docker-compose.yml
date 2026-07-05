@@ -1,23 +1,8 @@
 services:
-  app:
-    build: .
-    env_file: .env
-    depends_on:
-      - db
-      - queue
-
-  db:
-    image: postgres:16
-    env_file: .env
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+  test:
+    build:
+      context: .
+      target: test
     volumes:
-      - db-data:/var/lib/postgresql/data
-
-  queue:
-    image: redis:7
-
-volumes:
-  db-data:
+      - .:/app
+    command: sh -c "ruff check . && pytest --cov=common --cov=libs --cov-report=term-missing"
