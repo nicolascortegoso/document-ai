@@ -5,4 +5,4 @@ services:
       target: test
     volumes:
       - .:/app
-    command: sh -c "ruff check . && pytest --cov=common --cov=libs --cov-report=term-missing"
+    command: sh -c "ruff check . && pytest --cov=common --cov=libs --cov=backends --cov=pipelines --cov-report=term-missing"

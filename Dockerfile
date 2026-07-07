@@ -20,6 +20,8 @@ FROM base AS builder
 COPY pyproject.toml ./
 COPY common ./common
 COPY libs ./libs
+COPY backends ./backends
+COPY pipelines ./pipelines
 
 # Editable install, not a regular one: docker-compose mounts source as a
 # volume for iterative dev, and pytest-cov needs to measure the actual
@@ -29,13 +31,14 @@ RUN pip install --no-cache-dir -e . \
     && pip install --no-cache-dir pytest pytest-cov ruff
 
 COPY tests ./tests
+COPY scripts ./scripts
 
 # ---- test ---------------------------------------------------------------
 # `docker build --target test` / CI target: lint, then run the suite with
 # coverage. Not used by the runtime image below.
 FROM builder AS test
 
-CMD ["sh", "-c", "ruff check . && pytest --cov=common --cov=libs --cov-report=term-missing"]
+CMD ["sh", "-c", "ruff check . && pytest --cov=common --cov=libs --cov=backends --cov=pipelines --cov-report=term-missing"]
 
 # ---- runtime --------------------------------------------------------------
 # Lean production image: no dev dependencies, no test files. There is no
@@ -46,9 +49,11 @@ FROM base AS runtime
 COPY pyproject.toml ./
 COPY common ./common
 COPY libs ./libs
+COPY backends ./backends
+COPY pipelines ./pipelines
 RUN pip install --no-cache-dir .
 
 RUN useradd --create-home --uid 1000 appuser
 USER appuser
 
-CMD ["python3", "-c", "import common, libs; print('document-ai runtime image OK')"]
+CMD ["python3", "-c", "import common, libs, backends, pipelines; print('document-ai runtime image OK')"]
