@@ -45,3 +45,4 @@ both.
 | Paradigm | Category | ABC | Spec |
 |---|---|---|---|
 | `queue/` | Task queue | `Queue` | [QUEUE_SPEC.md](queue/QUEUE_SPEC.md) |
+| `blob/` | Storage | `BlobStore` | [BLOB_SPEC.md](blob/BLOB_SPEC.md) |
