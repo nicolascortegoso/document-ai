@@ -47,3 +47,4 @@ All domain models live in `common/`. No `libs/` module defines domain models.
 |---|---|---|
 | `profiler/` | `profiler/detector/` | [PROFILER_SPEC.md](profiler/PROFILER_SPEC.md) |
 | `parser/` | `parser/postprocessor/` | [PARSER_SPEC.md](parser/PARSER_SPEC.md) |
+| `chunker/` | `chunker/splitter/` | [CHUNKER_SPEC.md](chunker/CHUNKER_SPEC.md) |
