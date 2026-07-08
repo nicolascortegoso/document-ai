@@ -46,3 +46,4 @@ All domain models live in `common/`. No `libs/` module defines domain models.
 | Module | Injected Dependency | Spec |
 |---|---|---|
 | `profiler/` | `profiler/detector/` | [PROFILER_SPEC.md](profiler/PROFILER_SPEC.md) |
+| `parser/` | `parser/postprocessor/` | [PARSER_SPEC.md](parser/PARSER_SPEC.md) |

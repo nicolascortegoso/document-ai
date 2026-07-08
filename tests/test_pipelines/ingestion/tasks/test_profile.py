@@ -2,16 +2,22 @@ from __future__ import annotations
 
 from backends.queue.implementations.dummy import DummyQueue
 from backends.queue.models import JobStatus
+from libs.parser.implementations.default import DefaultPageExtractionStrategy
+from libs.parser.implementations.txt import TxtPageExtractionStrategy
+from libs.parser.registry import ParserRegistry
 from libs.profiler.implementations.default import DefaultProfiler
 from libs.profiler.implementations.txt import TxtProfiler
 from libs.profiler.registry import ProfilerRegistry
-from pipelines.ingestion.pipeline import IngestionPipeline
+from pipelines.ingestion.implementations.pipeline import IngestionPipeline
 from pipelines.ingestion.tasks.profile import make_profile_document_job
 
 
 def _make_pipeline() -> IngestionPipeline:
-    registry = ProfilerRegistry([DefaultProfiler(), TxtProfiler()])
-    return IngestionPipeline(registry)
+    profiler_registry = ProfilerRegistry([DefaultProfiler(), TxtProfiler()])
+    parser_registry = ParserRegistry(
+        [DefaultPageExtractionStrategy(), TxtPageExtractionStrategy()]
+    )
+    return IngestionPipeline(profiler_registry, parser_registry)
 
 
 def test_job_returns_a_serializable_dict_not_a_document_profile() -> None:
