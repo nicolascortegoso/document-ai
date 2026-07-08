@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from common.enums import FileType
 from common.models.document import DocumentProfile, PageProfile
+from libs.chunker.implementations.sliding_window import SlidingWindowChunkingStrategy
+from libs.chunker.registry import ChunkerRegistry
 from libs.parser.implementations.default import DefaultPageExtractionStrategy
 from libs.parser.implementations.txt import TxtPageExtractionStrategy
 from libs.parser.registry import ParserRegistry
@@ -16,7 +18,8 @@ def _make_pipeline() -> IngestionPipeline:
     parser_registry = ParserRegistry(
         [DefaultPageExtractionStrategy(), TxtPageExtractionStrategy()]
     )
-    return IngestionPipeline(profiler_registry, parser_registry)
+    chunker_registry = ChunkerRegistry([SlidingWindowChunkingStrategy()])
+    return IngestionPipeline(profiler_registry, parser_registry, chunker_registry)
 
 
 def test_profile_delegates_to_the_injected_profiler_registry() -> None:
@@ -78,3 +81,32 @@ def test_parse_preserves_page_numbers_across_multiple_pages() -> None:
 
     assert [p.page_number for p in result.pages] == [1, 2]
     assert all(p.text == "irrelevant for this test" for p in result.pages)
+
+
+def test_chunk_delegates_to_the_injected_chunker_registry() -> None:
+    pipeline = _make_pipeline()
+    file_bytes = "hello world, this is a short document".encode("utf-8")
+    document_profile = pipeline.profile(file_bytes)
+    parsed_document = pipeline.parse(file_bytes, document_profile)
+
+    result = pipeline.chunk(document_profile, parsed_document)
+
+    assert len(result) == 1
+    assert result[0].content == "hello world, this is a short document"
+    assert result[0].mime_type == FileType.PLAIN_TEXT
+    assert result[0].strategy == "SlidingWindowChunkingStrategy"
+
+
+def test_chunk_threads_document_id_through() -> None:
+    pipeline = _make_pipeline()
+    file_bytes = "hello world".encode("utf-8")
+    document_profile = pipeline.profile(file_bytes)
+    parsed_document = pipeline.parse(file_bytes, document_profile)
+
+    result = pipeline.chunk(document_profile, parsed_document)
+
+    # document_profile.document_id is None here (nothing assigns one yet
+    # in this release) — confirm that propagates through as None, not
+    # silently dropped or defaulted to something else.
+    assert document_profile.document_id is None
+    assert result[0].document_id is None

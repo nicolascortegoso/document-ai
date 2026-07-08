@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from backends.queue.implementations.dummy import DummyQueue
 from backends.queue.models import JobStatus
+from libs.chunker.implementations.sliding_window import SlidingWindowChunkingStrategy
+from libs.chunker.registry import ChunkerRegistry
 from libs.parser.implementations.default import DefaultPageExtractionStrategy
 from libs.parser.implementations.txt import TxtPageExtractionStrategy
 from libs.parser.registry import ParserRegistry
@@ -17,7 +19,8 @@ def _make_pipeline() -> IngestionPipeline:
     parser_registry = ParserRegistry(
         [DefaultPageExtractionStrategy(), TxtPageExtractionStrategy()]
     )
-    return IngestionPipeline(profiler_registry, parser_registry)
+    chunker_registry = ChunkerRegistry([SlidingWindowChunkingStrategy()])
+    return IngestionPipeline(profiler_registry, parser_registry, chunker_registry)
 
 
 def test_job_returns_a_serializable_dict_not_a_document_profile() -> None:

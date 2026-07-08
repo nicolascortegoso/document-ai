@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
 from typing import Any, ClassVar, TypeVar
+from uuid import UUID
 
 from common.enums import FileType
 from common.models.capability_registry import CAPABILITY_REGISTRY
@@ -56,6 +57,7 @@ class DocumentProfile:
     mime_type: FileType
     page_count: int
     pages: list[PageProfile] = field(default_factory=list)
+    document_id: UUID | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
