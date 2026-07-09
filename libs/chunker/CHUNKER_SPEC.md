@@ -5,36 +5,25 @@
 ## Overview
 
 Produces `DocumentChunk`s from a fully profiled and parsed document. Designed
-around an ABC and a priority-based registry, mirroring `libs/profiler/`'s
-pattern — but with one deliberate deviation, explained below.
+around an ABC and a priority-based registry — but with one deliberate
+deviation, explained below.
 
 `SlidingWindowChunkingStrategy` ships as the only concrete implementation in
 this release, and doubles as the universal fallback (see below) — there is
-no separate no-op `Default` strategy the way `DefaultProfiler`/
-`DefaultPageExtractionStrategy` exist for their modules.
+no separate no-op `Default` strategy, unlike some other modules in this
+project.
 
 This module depends on `common/` for `DocumentProfile`, `ParsedDocument`,
 `DocumentChunk`, and `FileType`, per the layering rules in `LIBS_SPEC.md`.
 
-## Why no `supported_mime_types` / MIME prefilter
+## MIME Prefilter
 
-`BaseDocumentProfiler` and `BasePageExtractionStrategy` both filter
-candidates by `FileType` before calling `can_handle()`, because the source
-file format directly determines the viable extraction technique. That
-signal is gone by the time chunking runs: everything is already plain text
-in a `ParsedDocument`, and two documents that started as different file
-types but parsed cleanly may want identical chunking, while two documents of
-the *same* original type (e.g. a cleanly-parsed PDF vs. a messy OCR'd one)
-may want different chunking. What actually matters is the shape of the
-*parsed content* — e.g. `PageProfile.has_tables`, or a capability like
-`ScanProfile` being present — which is `DocumentProfile`/`ParsedDocument`
-information, not `FileType`. So `BaseChunkingStrategy` drops the MIME stage
-entirely and passes both `DocumentProfile` and `ParsedDocument` straight
-into `can_handle()`/`chunk()`.
-
-One consequence: without MIME partitioning, priority conflicts are global
-(any two strategies sharing a priority conflict, not just ones sharing a
-`FileType`) rather than partitioned per format.
+`BaseChunkingStrategy` has no `supported_mime_types`. `can_handle`
+inspects `document_profile`/`parsed_document` content directly instead
+(e.g. `PageProfile.has_tables`, an attached capability). `DocumentChunk.mime_type`
+remains available if a strategy needs it, just not as a formal prefilter
+stage. Priority conflicts are therefore global, not partitioned per
+`FileType`.
 
 ## Interface Contract
 
@@ -49,10 +38,9 @@ One consequence: without MIME partitioning, priority conflicts are global
 ## Chunker Registry
 
 A `ChunkerRegistry` is instantiated by the consuming project and receives
-its strategy list as a constructor argument. No injected dependency the way
-`ProfilerRegistry`/`ParserRegistry` take a `Detector`/`Postprocessor` —
-chunking strategies configure their own dependencies (e.g. a `Splitter`)
-directly.
+its strategy list as a constructor argument — no injected dependency at the
+registry level; chunking strategies configure their own dependencies (e.g.
+a `Splitter`) directly.
 
 **Startup validation:** raises `ChunkerPriorityConflictError` if two
 strategies share the same priority (global, not per-`FileType` — see
@@ -73,9 +61,9 @@ the registered list is what this signals.
 ## `SlidingWindowChunkingStrategy`
 
 The universal fallback (`get_priority() -> 1`, `can_handle` always `True`) —
-and, in this release, the *only* strategy. Unlike `DefaultProfiler`'s
-empty-result fallback, this is a real, working general-purpose strategy:
-chunking has no sensible "give up and return nothing useful" behavior.
+and, in this release, the *only* strategy. This is a real, working
+general-purpose strategy, not a stub: chunking has no sensible "give up and
+return nothing useful" behavior.
 
 - **Window:** `200` words by default, configurable via constructor
 - **Overlap:** `10%` of window size by default (`20` words for the default

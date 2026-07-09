@@ -6,13 +6,12 @@
 
 Produces extracted text for a single page, given raw document bytes, an
 already-known MIME type, and that page's `PageProfile`. Designed around an
-ABC and a priority-based registry, mirroring `libs/profiler/`'s pattern, so
-format-specific extraction strategies can be added incrementally without
-modifying the core module.
+ABC and a priority-based registry, so format-specific extraction strategies
+can be added incrementally without modifying the core module.
 
 `DefaultPageExtractionStrategy` and `TxtPageExtractionStrategy` ship as the
 only concrete implementations in this release. All other formats are out of
-scope, for the same reasons as `PROFILER_SPEC.md`.
+scope for now.
 
 This module depends on `common/` for `FileType` and `PageProfile`, per the
 layering rules in `LIBS_SPEC.md`.
@@ -22,19 +21,15 @@ layering rules in `LIBS_SPEC.md`.
 - **Input:** `file_bytes: bytes`, `mime_type: FileType`, `page_profile: PageProfile`
 - **Output:** `str` — extracted, postprocessed text for that page
 
-Unlike `ProfilerRegistry`, this module does not detect `mime_type` itself —
+This module does not detect `mime_type` itself —
 it's already known from the profiling stage that runs before parsing, and is
 passed in by the caller.
 
 ## Abstract Base: `BasePageExtractionStrategy`
 
-`NoExtractionAvailableError` is defined alongside the ABC in `base.py`, not
-per-implementation — any strategy could raise it, not only
-`DefaultPageExtractionStrategy` (the only one that currently does), so
-callers catch one stable type regardless of which strategy is behind the
-interface. It signals "no real extraction capability exists here," distinct
-from `extract()` legitimately returning `""` for a page that was properly
-processed but genuinely has no content.
+`NoExtractionAvailableError` is defined in `base.py`, not per-implementation.
+Signals no real extraction capability exists — distinct from `extract()`
+returning `""` for a page with genuinely no content.
 
 | Method/Attribute | Type | Description |
 |---|---|---|
@@ -52,7 +47,7 @@ provided — see `postprocessor/POSTPROCESSOR_SPEC.md`).
 
 **Startup validation:** raises `ParserPriorityConflictError` if two
 strategies share the same priority for the same `FileType`, or if any
-strategy declares a priority outside `[1, 100]` — mirrors `ProfilerRegistry`.
+strategy declares a priority outside `[1, 100]`.
 
 ### Dispatch Flow
 
