@@ -8,9 +8,7 @@
 on — storage, task queues, LLM inference, embeddings, observability, and
 similarly-shaped integrations, with room for more paradigms as they come up.
 Every module defines an ABC for a specific paradigm and ships a default
-test-double implementation for testing and local development. Concrete
-production implementations live in the
-[infrastructure layer](../infrastructure/INFRASTRUCTURE_SPEC.md).
+test-double implementation, not for production use.
 
 ## Rules
 
@@ -21,7 +19,6 @@ production implementations live in the
   - **`Dummy*`** for everything else (e.g. `DummyLLMClient`, `DummyEmbedder`,
     `DummyObservabilityClient`)
   - Neither is thread-safe; both exist for testing and local development only
-- Concrete production implementations belong in the infrastructure layer
 
 ## Pattern
 
@@ -46,3 +43,4 @@ both.
 |---|---|---|---|
 | `queue/` | Task queue | `Queue` | [QUEUE_SPEC.md](queue/QUEUE_SPEC.md) |
 | `blob/` | Storage | `BlobStore` | [BLOB_SPEC.md](blob/BLOB_SPEC.md) |
+| `vector/` | Storage | `VectorStore` | [VECTOR_SPEC.md](vector/VECTOR_SPEC.md) |

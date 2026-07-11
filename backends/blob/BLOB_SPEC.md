@@ -6,8 +6,7 @@
 
 Abstracts binary object storage — raw bytes, keyed by string — so calling
 code never depends on a specific storage technology (e.g. S3, MinIO,
-filesystem). `InMemoryBlobStore` ships as the default. A production
-implementation lives in the infrastructure layer.
+filesystem). `InMemoryBlobStore` ships as the default.
 
 ## Interface Contract
 

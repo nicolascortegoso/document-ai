@@ -6,9 +6,7 @@
 
 Abstracts asynchronous job dispatch so that calling code never depends on a
 specific task-queue technology. `DummyQueue` ships as the default — it
-executes jobs synchronously, in-process, with no broker. A production
-implementation lives in the
-[infrastructure layer](../../infrastructure/INFRASTRUCTURE_SPEC.md).
+executes jobs synchronously, in-process, with no broker.
 
 ## Interface Contract
 
