@@ -49,3 +49,4 @@ All domain models live in `common/`. No `libs/` module defines domain models.
 | `parser/` | `parser/postprocessor/` | [PARSER_SPEC.md](parser/PARSER_SPEC.md) |
 | `chunker/` | `chunker/splitter/` | [CHUNKER_SPEC.md](chunker/CHUNKER_SPEC.md) |
 | `merger/` | `merger/reducer/` | [MERGER_SPEC.md](merger/MERGER_SPEC.md) |
+| `distiller/` | `distiller/analyzer/` + `distiller/composer/` | [DISTILLER_SPEC.md](distiller/DISTILLER_SPEC.md) |
