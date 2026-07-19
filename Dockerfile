@@ -28,7 +28,7 @@ COPY pipelines ./pipelines
 # source tree (not a copied snapshot in site-packages) for coverage
 # numbers to mean anything.
 RUN pip install --no-cache-dir -e . \
-    && pip install --no-cache-dir pytest pytest-cov ruff
+    && pip install --no-cache-dir pytest pytest-cov pytest-asyncio ruff
 
 COPY tests ./tests
 COPY scripts ./scripts
