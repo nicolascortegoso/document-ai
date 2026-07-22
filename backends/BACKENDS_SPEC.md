@@ -48,4 +48,5 @@ both.
 | `queue/` | Task queue | `Queue` | [QUEUE_SPEC.md](queue/QUEUE_SPEC.md) |
 | `blob/` | Storage | `BlobStore` | [BLOB_SPEC.md](blob/BLOB_SPEC.md) |
 | `vector/` | Storage | `VectorStore` | [VECTOR_SPEC.md](vector/VECTOR_SPEC.md) |
+| `record/` | Storage | `RecordStore` | [RECORD_SPEC.md](record/RECORD_SPEC.md) |
 | `logging/` | Observability | `Logger` | [LOGGING_SPEC.md](logging/LOGGING_SPEC.md) |
