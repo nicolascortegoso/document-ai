@@ -6,15 +6,17 @@ from libs.chunker.implementations.sliding_window import SlidingWindowChunkingStr
 from libs.chunker.registry import ChunkerRegistry
 from libs.distiller.implementations.glossary import GlossaryDistillerStrategy
 from libs.distiller.registry import DistillerRegistry
+from libs.indexer.implementations.batch import BatchIndexer
+from libs.indexer.registry import IndexerRegistry
 from libs.parser.implementations.default import DefaultPageExtractionStrategy
 from libs.parser.implementations.txt import TxtPageExtractionStrategy
 from libs.parser.registry import ParserRegistry
 from libs.profiler.implementations.default import DefaultProfiler
 from libs.profiler.implementations.txt import TxtProfiler
 from libs.profiler.registry import ProfilerRegistry
-from pipelines.distillation.implementations.distillation import DistillationPipeline
+from pipelines.distillation.implementations.standard import DistillationPipeline
 from pipelines.distillation.tasks.distill import make_distill_document_job
-from pipelines.ingestion.implementations.pipeline import IngestionPipeline
+from pipelines.ingestion.implementations.ingestion import IngestionPipeline
 from pipelines.ingestion.tasks.parse import make_parse_document_job
 from pipelines.ingestion.tasks.profile import make_profile_document_job
 
@@ -25,7 +27,10 @@ def _make_ingestion_pipeline() -> IngestionPipeline:
         [DefaultPageExtractionStrategy(), TxtPageExtractionStrategy()]
     )
     chunker_registry = ChunkerRegistry([SlidingWindowChunkingStrategy()])
-    return IngestionPipeline(profiler_registry, parser_registry, chunker_registry)
+    indexer_registry = IndexerRegistry([BatchIndexer()])
+    return IngestionPipeline(
+        profiler_registry, parser_registry, chunker_registry, indexer_registry
+    )
 
 
 def _make_distillation_pipeline() -> DistillationPipeline:

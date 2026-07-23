@@ -4,13 +4,15 @@ from backends.queue.implementations.dummy import DummyQueue
 from backends.queue.models import JobStatus
 from libs.chunker.implementations.sliding_window import SlidingWindowChunkingStrategy
 from libs.chunker.registry import ChunkerRegistry
+from libs.indexer.implementations.batch import BatchIndexer
+from libs.indexer.registry import IndexerRegistry
 from libs.parser.implementations.default import DefaultPageExtractionStrategy
 from libs.parser.implementations.txt import TxtPageExtractionStrategy
 from libs.parser.registry import ParserRegistry
 from libs.profiler.implementations.default import DefaultProfiler
 from libs.profiler.implementations.txt import TxtProfiler
 from libs.profiler.registry import ProfilerRegistry
-from pipelines.ingestion.implementations.pipeline import IngestionPipeline
+from pipelines.ingestion.implementations.ingestion import IngestionPipeline
 from pipelines.ingestion.tasks.parse import make_parse_document_job
 from pipelines.ingestion.tasks.profile import make_profile_document_job
 
@@ -21,7 +23,10 @@ def _make_pipeline() -> IngestionPipeline:
         [DefaultPageExtractionStrategy(), TxtPageExtractionStrategy()]
     )
     chunker_registry = ChunkerRegistry([SlidingWindowChunkingStrategy()])
-    return IngestionPipeline(profiler_registry, parser_registry, chunker_registry)
+    indexer_registry = IndexerRegistry([BatchIndexer()])
+    return IngestionPipeline(
+        profiler_registry, parser_registry, chunker_registry, indexer_registry
+    )
 
 
 def test_job_accepts_a_document_profile_dict_and_returns_a_serializable_dict() -> None:

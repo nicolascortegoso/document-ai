@@ -5,7 +5,7 @@ from common.models.chunk import DocumentChunk, SourceReference
 from common.models.tree import DocumentTree
 from libs.merger.implementations.bottom_up import BottomUpMergingStrategy
 from libs.merger.registry import MergerRegistry
-from pipelines.summarization.implementations.summarization import SummarizationPipeline
+from pipelines.summarization.implementations.standard import SummarizationPipeline
 
 
 def _chunk(page: int, content: str) -> DocumentChunk:

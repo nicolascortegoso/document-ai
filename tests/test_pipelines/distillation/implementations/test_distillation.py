@@ -5,7 +5,7 @@ from uuid import uuid4
 from common.models.parse import ParsedDocument, ParsedPage
 from libs.distiller.implementations.glossary import GlossaryDistillerStrategy
 from libs.distiller.registry import DistillerRegistry
-from pipelines.distillation.implementations.distillation import DistillationPipeline
+from pipelines.distillation.implementations.standard import DistillationPipeline
 
 
 def test_distill_delegates_to_the_injected_distiller_registry() -> None:

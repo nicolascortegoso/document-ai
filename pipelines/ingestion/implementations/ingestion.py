@@ -2,8 +2,10 @@ from __future__ import annotations
 
 from common.models.chunk import DocumentChunk
 from common.models.document import DocumentProfile
+from common.models.indexed import IndexedChunk
 from common.models.parse import ParsedDocument, ParsedPage
 from libs.chunker.registry import ChunkerRegistry
+from libs.indexer.registry import IndexerRegistry
 from libs.parser.registry import ParserRegistry
 from libs.profiler.registry import ProfilerRegistry
 from pipelines.ingestion.base import BaseIngestionPipeline
@@ -19,10 +21,12 @@ class IngestionPipeline(BaseIngestionPipeline):
         profiler_registry: ProfilerRegistry,
         parser_registry: ParserRegistry,
         chunker_registry: ChunkerRegistry,
+        indexer_registry: IndexerRegistry,
     ) -> None:
         self._profiler_registry = profiler_registry
         self._parser_registry = parser_registry
         self._chunker_registry = chunker_registry
+        self._indexer_registry = indexer_registry
 
     def profile(self, file_bytes: bytes) -> DocumentProfile:
         return self._profiler_registry.profile(file_bytes)
@@ -43,3 +47,6 @@ class IngestionPipeline(BaseIngestionPipeline):
         self, document_profile: DocumentProfile, parsed_document: ParsedDocument
     ) -> list[DocumentChunk]:
         return self._chunker_registry.chunk_document(document_profile, parsed_document)
+
+    def index(self, chunks: list[DocumentChunk]) -> list[IndexedChunk]:
+        return self._indexer_registry.index_chunks(chunks)

@@ -4,13 +4,15 @@ from common.enums import FileType
 from common.models.document import DocumentProfile, PageProfile
 from libs.chunker.implementations.sliding_window import SlidingWindowChunkingStrategy
 from libs.chunker.registry import ChunkerRegistry
+from libs.indexer.implementations.batch import BatchIndexer
+from libs.indexer.registry import IndexerRegistry
 from libs.parser.implementations.default import DefaultPageExtractionStrategy
 from libs.parser.implementations.txt import TxtPageExtractionStrategy
 from libs.parser.registry import ParserRegistry
 from libs.profiler.implementations.default import DefaultProfiler
 from libs.profiler.implementations.txt import TxtProfiler
 from libs.profiler.registry import ProfilerRegistry
-from pipelines.ingestion.implementations.pipeline import IngestionPipeline
+from pipelines.ingestion.implementations.ingestion import IngestionPipeline
 
 
 def _make_pipeline() -> IngestionPipeline:
@@ -19,7 +21,10 @@ def _make_pipeline() -> IngestionPipeline:
         [DefaultPageExtractionStrategy(), TxtPageExtractionStrategy()]
     )
     chunker_registry = ChunkerRegistry([SlidingWindowChunkingStrategy()])
-    return IngestionPipeline(profiler_registry, parser_registry, chunker_registry)
+    indexer_registry = IndexerRegistry([BatchIndexer()])
+    return IngestionPipeline(
+        profiler_registry, parser_registry, chunker_registry, indexer_registry
+    )
 
 
 def test_profile_delegates_to_the_injected_profiler_registry() -> None:
@@ -110,3 +115,17 @@ def test_chunk_threads_document_id_through() -> None:
     # silently dropped or defaulted to something else.
     assert document_profile.document_id is None
     assert result[0].document_id is None
+
+
+def test_index_delegates_to_the_injected_indexer_registry() -> None:
+    pipeline = _make_pipeline()
+    file_bytes = "hello world, this is a short document".encode("utf-8")
+    document_profile = pipeline.profile(file_bytes)
+    parsed_document = pipeline.parse(file_bytes, document_profile)
+    chunks = pipeline.chunk(document_profile, parsed_document)
+
+    result = pipeline.index(chunks)
+
+    assert len(result) == 1
+    assert result[0].chunk == chunks[0]
+    assert len(result[0].embedding) == 8  # DummyEmbedder's default dimensionality
