@@ -16,8 +16,7 @@ test-double implementation, not for production use.
 - May import domain models from `common/` — they are passed in by the consuming layer
 - Every module ships a default test-double implementation, not for production use:
   - **`InMemory*`** for storage paradigms (e.g. `InMemoryDocumentStore`)
-  - **`Dummy*`** for everything else (e.g. `DummyLLMClient`, `DummyEmbedder`,
-    `DummyLogger`)
+  - **`Dummy*`** for everything else (e.g. `DummyLLMClient`, `DummyLogger`)
   - Neither is thread-safe; both exist for testing and local development only
   - This constrains the naming of the default test-double only — a paradigm
     may ship additional, non-default implementations with genuine standalone

@@ -28,6 +28,8 @@ common/
     parsed.py
     chunk.py
     tree.py
+    entry.py
+    indexed.py
     capability_registry.py
 ```
 
@@ -206,6 +208,50 @@ clusters by similarity rather than position could legitimately produce a
 `SummaryNode` with out-of-order children by design. `common/` shouldn't
 bake one strategy's assumption into a model every strategy has to produce;
 upholding order, where it matters, is left to whatever constructs the tree.
+
+## `models/entry.py`
+
+```python
+@dataclass(kw_only=True)
+class Entry:
+    document_id: UUID
+    id: UUID = field(default_factory=uuid4)
+```
+
+The base type every distilled thing inherits from. `document_id` is
+required, not optional — distillation presupposes a document has already
+been fully ingested, unlike `DocumentProfile`/`ParsedDocument`, which exist
+at earlier stages where that guarantee doesn't hold yet. `id` identifies
+the entry itself, matching `DocumentChunk`/`SummaryNode`'s convention.
+
+`@dataclass(kw_only=True)` — every subclass must declare this explicitly
+too, even though Python would honor it either way once the parent sets it.
+`Entry.id` has a default (`uuid4`), and any subclass adding its own
+required fields after a defaulted parent field would otherwise hit the
+standard dataclass field-ordering error; `kw_only=True` sidesteps that
+entirely rather than working around it with artificial defaults.
+
+Only `Entry` itself lives here — concrete subclasses (e.g. `GlossaryEntry`)
+don't. `Entry` is genuinely universal: it's the type every distiller
+strategy's output is bound to (`T`, in `BaseDistillerStrategy[T]`), the
+same way `DocumentChunk` is fixed by `BaseChunkingStrategy.chunk()`'s own
+signature. A concrete subclass is different — it's one strategy family's
+particular choice of `T`, not something the ABC itself requires. That
+makes it the same kind of thing as a capability dataclass
+(`ScanProfile`/`TabularProfile`): the mechanism lives in `common/`, the
+concrete extension doesn't have to.
+
+## `models/indexed.py`
+
+```python
+@dataclass
+class IndexedChunk:
+    chunk: DocumentChunk
+    embedding: list[float]
+```
+
+The output of indexing. Pairs a `DocumentChunk` with its
+embedding. Same `to_dict()`/`from_dict()` convention as `document.py`.
 
 ## `models/capability_registry.py`
 
